@@ -1,5 +1,25 @@
 import java.util.Scanner;
 
+class suppliers{
+    String id;
+    String name;
+}
+
+class itemDetails{
+    String itemId;
+    int supplierIndexId;
+    int categoryIndexId;
+    String description;
+    double unitPrice;
+    int qty;
+}
+
+class category{
+    String category;
+
+}
+
+
 public class Main {
     //Tools
     private static Scanner input = new Scanner(System.in);
@@ -12,7 +32,6 @@ public class Main {
     private static String[][] itemDetails = new String[0][6];
 
     //Additional Methods
-
     public static String isExistSuppliers(int index){
         if (index==-1){
             return null;
