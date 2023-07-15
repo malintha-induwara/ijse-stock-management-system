@@ -1,24 +1,28 @@
 import java.util.Scanner;
 
-class suppliers{
+class Suppliers{
     String id;
     String name;
 }
 
-class itemDetails{
-    String itemId;
-    int supplierIndexId;
-    int categoryIndexId;
-    String description;
-    double unitPrice;
-    int qty;
+class ItemDetails{
+    String itemId; //0
+    int supplierIndexId; //1
+    int categoryIndexId; //2
+    String description; //3
+    double unitPrice; //4
+    int qty; //5
 }
 
-class category{
+class Category{
     String category;
 
 }
 
+class UnitPrice {
+    int indexOfItemDetails;
+    int price;
+}
 
 public class Main {
     //Tools
@@ -26,50 +30,51 @@ public class Main {
     //Database
     private static String username = "admin";
     private static String password = "123";
-    private static String[] categories = new String[0];
-    private static int[][] unitPrice = new int[0][2];
-    private static String[][] suppliers = new String[0][2];
-    private static String[][] itemDetails = new String[0][6];
+    private static ItemDetails [] itemDetails=new ItemDetails[0];
+    private static UnitPrice [] unitPrice=new UnitPrice[0];
+    private static Category [] categories=new Category[0];
+    private static Suppliers [] suppliers=new Suppliers[0];
 
     //Additional Methods
     public static String isExistSuppliers(int index){
         if (index==-1){
             return null;
         }
-        return suppliers[index][0];
+        return suppliers[index].id;
     }
     public static String isExistCategories(int index){
         if (index==-1){
             return  null;
         }
         else {
-            return categories[index];
+            return categories[index].category;
         }
     }
     public static void unitPriceSorting(){
         for (int i = 0; i < itemDetails.length; i++){
             extendUnitPrice();
-            unitPrice[unitPrice.length-1][0] = i;
-            unitPrice[unitPrice.length-1][1] = (int) Double.parseDouble(itemDetails[i][4]);
+            unitPrice[unitPrice.length-1]= new UnitPrice();
+            unitPrice[unitPrice.length-1].indexOfItemDetails = i;
+            unitPrice[unitPrice.length-1].price = (int) itemDetails[i].unitPrice;
         }
 
         for (int i = 0; i < unitPrice.length - 1; i++) {
             for (int j = 0; j < unitPrice.length - (i+1); j++) {
-                if (unitPrice[j][1] > unitPrice[j + 1][1]) {
-                    int tempIndex = unitPrice[j][0];
-                    int tempPrice = unitPrice[j][1];
-                    unitPrice[j][0] = unitPrice[j + 1][0];
-                    unitPrice[j][1] = unitPrice[j + 1][1];
-                    unitPrice[j + 1][0] = tempIndex;
-                    unitPrice[j + 1][1] = tempPrice;
+                if (unitPrice[j].price > unitPrice[j + 1].price) {
+                    int tempIndex = unitPrice[j].indexOfItemDetails;
+                    int tempPrice = unitPrice[j].price;
+                    unitPrice[j].indexOfItemDetails = unitPrice[j + 1].indexOfItemDetails;
+                    unitPrice[j].price = unitPrice[j + 1].price;
+                    unitPrice[j + 1].indexOfItemDetails = tempIndex;
+                    unitPrice[j + 1].price = tempPrice;
                 }
             }
         }
     }
-    public static void searchSupplierTable(int index){
+   public static void searchSupplierTable(int index){
         boolean flag=false;
-        for (String[] detail : itemDetails) {
-            if (Integer.parseInt(detail[1]) == index) {
+        for (int i = 0; i < suppliers.length; i++) {
+            if ((itemDetails[i].supplierIndexId) == index) {
                 flag = true;
                 break;
             }
@@ -78,25 +83,26 @@ public class Main {
             System.out.printf("+-----------------+--------------------+----------------+-----------------+----------------+%n");
             System.out.printf("| %12s    | %15s    |%13s   |%14s   |%12s    |%n","ITEM CODE" , "DESCRIPTION","UNIT PRICE","QTY ON HAND","CATEGORY");
             System.out.printf("+-----------------+--------------------+----------------+-----------------+----------------+%n");
-            for (String[] itemDetail : itemDetails) {
-                if (Integer.parseInt(itemDetail[1]) == index) {
-                    System.out.printf("| %10s      | %13s      |%13s   |%12s     |%12s    |%n", itemDetail[0], itemDetail[3], itemDetail[4], itemDetail[5], isExistCategories(Integer.parseInt(itemDetail[2])));
+            for (int i = 0; i <itemDetails.length; i++) {
+                if (itemDetails[i].supplierIndexId == index) {
+                    System.out.printf("| %10s      | %13s      |%13s   |%12s     |%12s    |%n", itemDetails[i].itemId, itemDetails[i].description, itemDetails[i].unitPrice, itemDetails[i].qty, isExistCategories(itemDetails[i].categoryIndexId));
                 }
             }
             System.out.printf("+-----------------+--------------------+----------------+-----------------+----------------+%n");
         }
         else {
             System.out.println();
-            System.out.println("Its seems that the "+suppliers[index][1]+" does not provide any items at the moment.");
+            System.out.println("Its seems that the "+suppliers[index].name+" does not provide any items at the moment.");
         }
         System.out.println();
     }
+
     public static void suppliersTable(){
         System.out.printf("+-----------------+-------------------------+--------------------------+%n");
         System.out.printf("| %8s        | %17s       | %18s       |%n","#" , "SUPPLIER ID","SUPPLIER NAME");
         System.out.printf("+-----------------+-------------------------+--------------------------+%n");
         for (int i = 0; i < suppliers.length; i++) {
-            System.out.printf("| %8s        | %14s          |        %-18s|%n",(i+1), suppliers[i][0],suppliers[i][1]);
+            System.out.printf("| %8s        | %14s          |        %-18s|%n",(i+1), suppliers[i].id,suppliers[i].name);
         }
 
         System.out.printf("+-----------------+-------------------------+--------------------------+%n");
@@ -107,47 +113,41 @@ public class Main {
         System.out.printf("| %13s           | %18s       |%n", "#","CATEGORY NAME");
         System.out.printf("+-------------------------+--------------------------+%n");
         for (int i = 0; i < categories.length; i++){
-            System.out.printf("| %13s           |          %-16s|%n", (i+1), categories[i]);
+            System.out.printf("| %13s           |          %-16s|%n", (i+1), categories[i].category);
         }
         System.out.printf("+-------------------------+--------------------------+%n");
     }
     public static void extendUnitPrice(){
-        int [][]temp = new int[unitPrice.length+1][2];
+        UnitPrice [] temp=new UnitPrice[unitPrice.length+1];
         for (int i = 0; i < unitPrice.length; i++) {
-			for (int j = 0; j < unitPrice[i].length; j++) {
-				temp[i][j]= unitPrice[i][j];
-			}
+			temp[i]=unitPrice[i];
         }
         unitPrice = temp;
     }
     public static void extendItemDetails(){
-        String[][] temp = new String[itemDetails.length+1][6];
+        ItemDetails [] temp = new ItemDetails[itemDetails.length+1];
         for (int i = 0; i < itemDetails.length; i++) {
-			for (int j = 0; j < itemDetails[i].length; j++) {
-				temp[i][j] = itemDetails[i][j];
-			}
+			temp[i]=itemDetails[i];
         }
         itemDetails=temp;
     }
     public static void extendCategories(){
-        String []temp=new String[categories.length+1];
+        Category []temp=new Category[categories.length+1];
         for (int i = 0; i < categories.length; i++) {
             temp[i]=categories[i];
         }
         categories=temp;
     }
     public static void extendSuppliers() {
-        String[][] temp = new String[suppliers.length+1][2];
-        for (int i = 0; i < suppliers.length; i++) {
-			for (int j = 0; j < suppliers[i].length; j++) {
-				temp[i][j] = suppliers[i][j];
-			}
+        Suppliers [] temp=new Suppliers[suppliers.length+1];
+        for (int i = 0; i < suppliers.length; i++){
+            temp[i]= suppliers[i];
         }
         suppliers = temp;
     }
     public static void narrowCategories(int index) {
         // Delete the index of Categories Array
-        String[] temp = new String[categories.length - 1];
+        Category []temp=new Category[categories.length-1];
         for (int i = 0, j = 0; i < categories.length; i++) {
             if (index == i) {
                 continue;
@@ -159,33 +159,33 @@ public class Main {
 
         // Update the itemDetails Array
         for (int i = 0; i < itemDetails.length; i++) {
-            if (Integer.parseInt(itemDetails[i][2]) == index) {
-                itemDetails[i][2] = "-1";
-            } else if (Integer.parseInt(itemDetails[i][2])>index) {
-                itemDetails[i][2]= String.valueOf(Integer.parseInt(itemDetails[i][2])-1);
+            if (itemDetails[i].categoryIndexId == index) {
+                itemDetails[i].categoryIndexId = -1;
+            } else if (itemDetails[i].categoryIndexId>index) {
+                itemDetails[i].categoryIndexId = itemDetails[i].categoryIndexId-1;
             }
         }
     }
     public static void narrowSuppliers(int index) {
 
         //Delete the index of suppliers Array
-        String[][] temp = new String[suppliers.length - 1][2];
+
+        Suppliers []temp = new Suppliers[suppliers.length - 1];
         for (int i = 0, j = 0; i < suppliers.length; i++) {
             if (index == i) {
                 continue;
             }
-            temp[j][0] = suppliers[i][0];
-            temp[j][1] = suppliers[j][1];
+            temp[j] = suppliers[i];
             j++;
         }
         suppliers = temp;
 
         //Update the itemDetails Array
         for (int i = 0; i < itemDetails.length; i++) {
-            if ( Integer.parseInt(itemDetails[i][1]) == index){
-                itemDetails[i][1]="-1";
-            } else if (Integer.parseInt(itemDetails[i][1])>index) {
-                itemDetails[i][1]= String.valueOf(Integer.parseInt(itemDetails[i][1])-1);
+            if ( itemDetails[i].supplierIndexId == index){
+                itemDetails[i].supplierIndexId=-1;
+            } else if (itemDetails[i].supplierIndexId>index) {
+                itemDetails[i].supplierIndexId= itemDetails[i].supplierIndexId-1;
             }
         }
 
@@ -293,7 +293,7 @@ public class Main {
     }
 
     //Stock Manage Methods
-    public static void rankedUnitPrice(){
+   public static void rankedUnitPrice(){
         clearConsole();
         printTitle("RANKED UNIT PRICE");
 
@@ -305,13 +305,15 @@ public class Main {
             System.out.printf("+---------------+--------------+-----------------+----------------+---------------+---------------+%n");
             System.out.printf("| %8s      | %8s     |%11s      |%11s     |%9s      |%9s      |%n", "SID", "CODE", "DESC", "PRICE", "QTY","CAT");
             System.out.printf("+---------------+--------------+-----------------+----------------+---------------+---------------+%n");
-            for (int[] ints : unitPrice) {
-                System.out.printf("| %8s      | %8s     |%13s    |%11s     |%9s      |%10s     |%n", isExistSuppliers(Integer.parseInt(itemDetails[ints[0]][1])), itemDetails[ints[0]][0], itemDetails[ints[0]][3], itemDetails[ints[0]][4], itemDetails[ints[0]][5], isExistCategories(Integer.parseInt(itemDetails[ints[0]][2])));
+            for (int i = 0; i < unitPrice.length; i++) {
+                System.out.printf("| %8s      | %8s     |%13s    |%11s     |%9s      |%10s     |%n", isExistSuppliers(itemDetails[unitPrice[i].indexOfItemDetails].supplierIndexId), itemDetails[unitPrice[i].indexOfItemDetails].itemId, itemDetails[unitPrice[i].indexOfItemDetails].description, itemDetails[unitPrice[i].indexOfItemDetails].unitPrice, itemDetails[unitPrice[i].indexOfItemDetails].qty, isExistCategories(itemDetails[unitPrice[i].indexOfItemDetails].categoryIndexId));
             }
             System.out.printf("+---------------+--------------+-----------------+----------------+---------------+---------------+%n");
         }
+
+
         //Clear up the unit price array
-        unitPrice= new int[0][2];
+        unitPrice = new UnitPrice[0];
         System.out.println();
         String text="Do you want to go stock manage page (Y/N)?";
         char select=validation(text);
@@ -327,22 +329,22 @@ public class Main {
         }
 
         for (int i = 0; i < categories.length; i++) {
-            System.out.println(categories[i] + ": ");
+            System.out.println(categories[i].category + ": ");
             System.out.printf("+---------------+--------------+----------------+----------------+---------------+%n");
             System.out.printf("| %8s      | %8s     |%10s      |%11s     |%9s      |%n", "SID", "CODE", "DESC", "PRICE", "QTY");
             System.out.printf("+---------------+--------------+----------------+----------------+---------------+%n");
 
             boolean flag = false;
-            for (String[] itemDetail : itemDetails) {
-                if (Integer.parseInt(itemDetail[2]) == i) {
+            for (int j = 0; j < itemDetails.length; j++) {
+                if (itemDetails[j].categoryIndexId == i) {
                     flag = true;
                     break;
                 }
             }
             if (flag) {
-                for (String[] itemDetail : itemDetails) {
-                    if (Integer.parseInt(itemDetail[2]) == i) {
-                        System.out.printf("| %8s      | %8s     |%10s      |%11s     |%9s      |%n", isExistSuppliers(Integer.parseInt(itemDetail[1])), itemDetail[0], itemDetail[3], itemDetail[4], itemDetail[5]);
+                for (int j = 0; j < itemDetails.length; j++) {
+                    if (itemDetails[j].categoryIndexId  == i) {
+                        System.out.printf("| %8s      | %8s     |%10s      |%11s     |%9s      |%n", isExistSuppliers(itemDetails[j].supplierIndexId), itemDetails[j].itemId, itemDetails[j].description, itemDetails[j].unitPrice, itemDetails[j].qty);
                     }
                 }
             } else {
@@ -373,7 +375,7 @@ public class Main {
                 int index = -1;
 
                 for (int i = 0; i < suppliers.length; i++) {
-                    if (suppliers[i][0].equals(id)) {
+                    if ((suppliers[i].id).equals(id)) {
                         flag = true;
                         index = i;
                         break;
@@ -381,7 +383,7 @@ public class Main {
                 }
 
                 if (flag) {
-                    System.out.println("Supplier Name: " + suppliers[index][1]);
+                    System.out.println("Supplier Name: " + suppliers[index].name);
                     searchSupplierTable(index);
                     System.out.print("Search Successfully! ");
                     //For checking input validation
@@ -424,8 +426,8 @@ public class Main {
                 String itemCode = input.next();
                 boolean flag = false;
 
-                for (String[] itemDetail : itemDetails) {
-                    if (itemDetail[0].equals(itemCode)) {
+                for (int i = 0; i < itemDetails.length; i++) {
+                    if ((itemDetails[i].itemId).equals(itemCode)) {
                         System.out.println("Item Code Already Exists. Try another item code!");
                         flag = true;
                         break;
@@ -434,12 +436,13 @@ public class Main {
 
                 if (!flag){
                     extendItemDetails();
-                    itemDetails[itemDetails.length-1][0]=itemCode;
+                    itemDetails[itemDetails.length-1] = new ItemDetails();
+                    itemDetails[itemDetails.length-1].itemId=itemCode;
                     suppliersTable();
                     do {
                         int number=readIntegerInput("Enter the supplier number > ");
                         if ((0<number) && (number <=suppliers.length)){
-                            itemDetails[itemDetails.length-1][1]= String.valueOf(number-1);
+                            itemDetails[itemDetails.length-1].supplierIndexId= number-1;
                             break;
                         }
                         else {
@@ -450,7 +453,7 @@ public class Main {
                     do {
                         int number=readIntegerInput("Enter the category number > ");
                         if (( 0< number) && (number <=categories.length)){
-                            itemDetails[itemDetails.length-1][2]= String.valueOf(number-1);
+                            itemDetails[itemDetails.length-1].categoryIndexId= number-1;
                             break;
                         }
                         else {
@@ -458,11 +461,11 @@ public class Main {
                         }
                     }while (true);
                     System.out.print("Description : ");
-                    itemDetails[itemDetails.length-1][3]= input.next();
+                    itemDetails[itemDetails.length-1].description= input.next();
                     do {
                         double number= readDoubleInput("Unit price : ");
                         if (0<number){
-                            itemDetails[itemDetails.length-1][4]= String.valueOf(number);
+                            itemDetails[itemDetails.length-1].unitPrice= number;
                             break;
                         }
                         else {
@@ -472,7 +475,7 @@ public class Main {
                     do {
                         int number=readIntegerInput("Qty on hand : ");
                         if (0<=number){
-                            itemDetails[itemDetails.length-1][5]= String.valueOf(number);
+                            itemDetails[itemDetails.length-1].qty= number;
                             break;
                         }
                         else {
@@ -507,7 +510,7 @@ public class Main {
                 int index = -1;
 
                 for (int i = 0; i < categories.length; i++) {
-                    if (categories[i].equals(category)) {
+                    if ((categories[i].category).equals(category)) {
                         flag = true;
                         index = i;
                         break;
@@ -515,7 +518,7 @@ public class Main {
                 }
                 if (flag) {
                     System.out.print("Enter the new item name: ");
-                    categories[index] = input.next();
+                    categories[index].category = input.next();
                     System.out.print("Updated successfully!");
                     //For checking input validation
                     String text = "Do You want to Update another category (Y/N)?";
@@ -546,7 +549,7 @@ public class Main {
                 int index = -1;
 
                 for (int i = 0; i < categories.length; i++) {
-                    if (categories[i].equals(category)) {
+                    if ((categories[i].category).equals(category)) {
                         flag = true;
                         index = i;
                         break;
@@ -578,8 +581,8 @@ public class Main {
             String category = input.next();
             boolean flag = false;
 
-            for (String s : categories) {
-                if (s.equals(category)) {
+            for (int i = 0; i <categories.length; i++) {
+                if ((categories[i].category).equals(category)) {
                     System.out.println("Category Already Exists. Try another category!");
                     flag = true;
                     break;
@@ -588,7 +591,8 @@ public class Main {
 
             if (!flag){
                 extendCategories();
-                categories[categories.length-1] = category;
+                categories[categories.length-1] = new Category();
+                categories[categories.length-1].category = category;
                 System.out.print("added successfully!");
 
                 //For checking input validation
@@ -652,7 +656,7 @@ public class Main {
                 boolean flag = false;
                 int index=-1;
                 for (int i = 0; i < suppliers.length; i++) {
-                    if (suppliers[i][0].equals(id)) {
+                    if ((suppliers[i].id).equals(id)) {
                         flag = true;
                         index=i;
                         break;
@@ -660,7 +664,7 @@ public class Main {
                 }
 
                 if (flag){
-                    System.out.println("Supplier Name: "+suppliers[index][1]);
+                    System.out.println("Supplier Name: "+suppliers[index].name);
                     System.out.println();
                     System.out.print("Found Successfully ");
                     //For checking input validation
@@ -688,8 +692,8 @@ public class Main {
             System.out.printf("+-------------------------+--------------------------+%n");
             System.out.printf("| %17s       | %18s       |%n", "SUPPLIER ID","SUPPLIER NAME");
             System.out.printf("+-------------------------+--------------------------+%n");
-            for (String[] supplier : suppliers) {
-                System.out.printf("| %14s          |          %-16s|%n", supplier[0], supplier[1]);
+            for (int i = 0; i < suppliers.length; i++) {
+                System.out.printf("| %14s          |          %-16s|%n", suppliers[i].id, suppliers[i].name);
             }
             System.out.printf("+-------------------------+--------------------------+%n");
         }
@@ -717,7 +721,7 @@ public class Main {
                 int index = -1;
 
                 for (int i = 0; i < suppliers.length; i++) {
-                    if (suppliers[i][0].equals(id)) {
+                    if ((suppliers[i].id).equals(id)) {
                         flag = true;
                         index = i;
                         break;
@@ -741,7 +745,7 @@ public class Main {
             }
         }while (true);
     }
-    public static void updateSupplier(){
+   public static void updateSupplier(){
         clearConsole();
         printTitle("UPDATE SUPPLIERS");
 
@@ -756,7 +760,7 @@ public class Main {
                 boolean flag = false;
                 int index = -1;
                 for (int i = 0; i < suppliers.length; i++) {
-                    if (suppliers[i][0].equals(id)) {
+                    if ((suppliers[i].id).equals(id)) {
                         flag = true;
                         index = i;
                         break;
@@ -764,10 +768,10 @@ public class Main {
                 }
 
                 if (flag) {
-                    System.out.println("Supplier Name: " + suppliers[index][1]);
+                    System.out.println("Supplier Name: " + suppliers[index].name);
                     System.out.println();
                     System.out.print("Enter the new supplier name: ");
-                    suppliers[index][1] = input.next();
+                    suppliers[index].name = input.next();
                     System.out.print("Updated Successfully! ");
 
                     //For checking input validation
@@ -792,8 +796,9 @@ public class Main {
             String id = input.next();
             boolean flag = false;
 
-            for (String[] supplier : suppliers) {
-                if (supplier[0].equals(id)) {
+
+            for (int i = 0; i <suppliers.length; i++) {
+                if ((suppliers[i].id).equals(id)) {
                     System.out.println("ID Already Exists. Try another supplier id!");
                     flag = true;
                     break;
@@ -802,9 +807,11 @@ public class Main {
 
             if (!flag){
                 extendSuppliers();
-                suppliers[suppliers.length - 1][0] = id;
+                suppliers[suppliers.length - 1] = new Suppliers();
+
+                suppliers[suppliers.length - 1].id = id;
                 System.out.print("Enter Supplier Name: ");
-                suppliers[suppliers.length - 1][1] = input.next();
+                suppliers[suppliers.length - 1].name = input.next();
 
                 System.out.print("added successfully!");
 
