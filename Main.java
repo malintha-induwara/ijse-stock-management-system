@@ -6,12 +6,12 @@ class Suppliers{
 }
 
 class ItemDetails{
-    String itemId; //0
-    int supplierIndexId; //1
-    int categoryIndexId; //2
-    String description; //3
-    double unitPrice; //4
-    int qty; //5
+    String itemId; 
+    int supplierIndexId; 
+    int categoryIndexId; 
+    String description; 
+    double unitPrice; 
+    int qty; 
 }
 
 class Category{
