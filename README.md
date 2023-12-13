@@ -1,4 +1,4 @@
-# GDSE- Programming Fundamentals (PRF) Module Final CourceWork.
+# GDSE- Programming Fundamentals (PRF) Module Final CourseWork.
 
 * Command line utility for managing stocks in a business. 
 
